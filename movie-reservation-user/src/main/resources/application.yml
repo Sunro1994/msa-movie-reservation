@@ -13,18 +13,13 @@ spring:
 
 
 eureka:
+  instance:
+    prefer-ip-address: true
   client:
     service-url:
       defaultZone: http://localhost:19090/eureka/
-
-
-#management:
-#  zipkin:
-#    tracing:
-#      endpoint: "http://localhost:9411/api/v2/spans"
-#  tracing:
-#    sampling:
-#      probability: 1.0
+    register-with-eureka: true
+    fetch-registry: true
 
 server:
   port: 19091
