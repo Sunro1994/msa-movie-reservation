@@ -41,4 +41,13 @@ public class UserService {
         return token;
 
     }
+
+    @Transactional
+    public void logout(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new IllegalArgumentException("회원을 찾을 수 없습니다.")
+        );
+
+        user.updateRefreshToken(null);
+    }
 }

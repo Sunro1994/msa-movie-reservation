@@ -37,9 +37,11 @@ public class UserController {
 
     @PutMapping("/logout")
     public ResponseEntity<Void> logout(
-            @RequestHeader("Authorization") String accessToken
+            @RequestHeader("x-User-Id") Long userId
     ){
+        userService.logout(userId);
 
+        return ResponseEntity.ok().build();
     }
 
 }
