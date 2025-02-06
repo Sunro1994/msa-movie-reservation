@@ -37,9 +37,9 @@ public class UserController {
 
     @PutMapping("/logout")
     public ResponseEntity<Void> logout(
-            @RequestHeader("x-User-Id") Long userId
+            @RequestHeader("X-User-Id") String userId
     ){
-        userService.logout(userId);
+        userService.logout(Long.valueOf(userId));
 
         return ResponseEntity.ok().build();
     }

@@ -76,6 +76,7 @@ public class User {
 
     public static UserResponse toResponse(User user) {
         return UserResponse.builder()
+                .userId(user.getId())
                 .email(user.getEmail())
                 .userName(user.getUserName())
                 .birthday(user.getBirthday())

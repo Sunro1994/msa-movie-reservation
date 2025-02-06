@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 public interface AuthClient {
 
     @PostMapping("/auth/token")
-    TokenResponse getToken(@RequestBody UserResponse userResponse);
+    TokenResponse getToken(@RequestBody UserResponse userRequest);
 
     @GetMapping("/auth/refresh-token")
     String renewToken(@RequestHeader("refreshToken") String refreshToken);
