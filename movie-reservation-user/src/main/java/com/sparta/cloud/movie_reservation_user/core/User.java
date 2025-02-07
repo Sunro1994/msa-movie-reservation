@@ -86,4 +86,7 @@ public class User {
                 .build();
     }
 
+    public void updatePhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
 }

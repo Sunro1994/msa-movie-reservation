@@ -44,4 +44,14 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
+    @PatchMapping
+    public ResponseEntity<Void> update(
+            @RequestHeader("X-User-Id") String userId,
+            @RequestBody String phoneNumber
+    ){
+        userService.update(userId, phoneNumber);
+
+        return ResponseEntity.ok().build();
+    }
+
 }

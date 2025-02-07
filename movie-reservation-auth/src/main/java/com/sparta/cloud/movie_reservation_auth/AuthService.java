@@ -3,6 +3,7 @@ package com.sparta.cloud.movie_reservation_auth;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +11,7 @@ import javax.crypto.SecretKey;
 import java.util.Date;
 
 @Service
+@Slf4j
 public class AuthService {
 
 
@@ -41,19 +43,20 @@ public class AuthService {
      * @param userId 사용자 ID
      * @return 생성된 JWT 액세스 토큰
      */
-    public TokenResponse createToken(UserRequest userRequest) {
+    public TokenResponse createToken(UserResponse userResponse) {
 
         return TokenResponse.builder()
-                .accessToken(createAccessToken(userRequest))
-                .refreshToken(createRefreshToken(userRequest.getUserId()))
+                .accessToken(createAccessToken(userResponse))
+                .refreshToken(createRefreshToken(userResponse.getUserId()))
                 .build();
 
     }
 
-    private String createAccessToken(UserRequest userRequest) {
+    private String createAccessToken(UserResponse userResponse) {
+        log.info("userRequest.getId ={}", userResponse.getUserId());
         return Jwts.builder()
-                .claim("user_id", userRequest.getUserId())
-                .claim("role", userRequest.getRole())
+                .claim("user_id", userResponse.getUserId())
+                .claim("role", userResponse.getRole())
                 .issuer(issuer)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + accessExpiration))

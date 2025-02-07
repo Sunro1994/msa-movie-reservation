@@ -36,50 +36,53 @@ public class LocalJwtAuthenticationFilter implements GlobalFilter,Ordered {
 
         String authHeader = request.getHeaders().getFirst("Authorization");
 
-        log.info("token = {} " , authHeader);
         //token 추출
         String accessToken = extractToken(authHeader);
-        log.info("token = {} " , accessToken);
 
         //token 검증
         if (accessToken == null || !validateToken(exchange, accessToken)) {
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
+        }else{
+           return chain.filter(customSeverWebExchange(exchange,getClaims(accessToken)));
         }
 
-        return chain.filter(exchange);
     }
 
     private boolean validateToken(ServerWebExchange exchange, String token) {
         try {
-            SecretKey key = Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(secretKey));
-            Jws<Claims> claimsJws = Jwts.parser()
-                    .verifyWith(key)
-                    .build()
-                    .parseSignedClaims(token) ;
+            Claims claims = getClaims(token);
 
-            Claims claims = claimsJws.getBody();
-            log.info("claims :: " + claims);
+            customSeverWebExchange(exchange, claims);
 
-            ServerHttpRequest serverHttpRequest = exchange.getRequest().mutate()
-                    .header("X-User-Id", claims.get("user_id").toString())
-                    .header("X-Role", claims.get("role").toString())
-                    .build();
-
-            exchange.mutate().request(serverHttpRequest).build();
-
-            // 요청을 전달하기 전에 헤더를 확인하기 위해 로그를 찍음
-            exchange.getRequest().getHeaders().forEach((target, value) ->
-                    log.info("Header Key: {} , Value: {}", target, value)
-            );
-
-            // 추가적인 검증 로직 (예: 토큰 만료 여부 확인 등)을 여기에 추가할 수 있습니다.
-            log.info("검증 완료");
             return true;
         } catch (Exception e) {
             log.info(e.getMessage());
             return false;
         }
+    }
+
+    private static ServerWebExchange customSeverWebExchange(ServerWebExchange exchange, Claims claims) {
+        ServerHttpRequest serverHttpRequest = exchange.getRequest().mutate()
+                .header("X-User-Id", claims.get("user_id").toString())
+                .header("X-Role", claims.get("role").toString())
+                .build();
+
+        exchange = exchange.mutate().request(serverHttpRequest).build();
+
+        return exchange;
+    }
+
+    private Claims getClaims(String token) {
+        SecretKey key = Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(secretKey));
+        Jws<Claims> claimsJws = Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token) ;
+
+        Claims claims = claimsJws.getBody();
+        log.info("claims :: " + claims);
+        return claims;
     }
 
     private String extractToken(String authHeader) {

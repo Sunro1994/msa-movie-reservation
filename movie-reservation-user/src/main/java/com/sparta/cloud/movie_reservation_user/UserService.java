@@ -29,10 +29,10 @@ public class UserService {
                 () -> new IllegalArgumentException("아이디 또는 비밀번호를 다시 확인해주세요")
         );
 
-        if(passwordEncoder.matches(userSignInRequest.getPassword(), user.getPassword())) {
+        if (passwordEncoder.matches(userSignInRequest.getPassword(), user.getPassword())) {
             UserResponse response = User.toResponse(user);
             token = authClient.getToken(response);
-        }else{
+        } else {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
@@ -44,10 +44,20 @@ public class UserService {
 
     @Transactional
     public void logout(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(
-                () -> new IllegalArgumentException("회원을 찾을 수 없습니다.")
-        );
+        User user = getUser(userId);
 
         user.updateRefreshToken(null);
+    }
+
+    private User getUser(Long userId) {
+        return userRepository.findById(userId).orElseThrow(
+                () -> new IllegalArgumentException("회원을 찾을 수 없습니다.")
+        );
+    }
+
+    @Transactional
+    public void update(String userId, String phoneNumber) {
+        User user = getUser(Long.valueOf(userId));
+        user.updatePhoneNumber(phoneNumber);
     }
 }

@@ -1,9 +1,11 @@
 package com.sparta.cloud.movie_reservation_auth;
 
 import lombok.Data;
+import lombok.ToString;
 
 @Data
-public class UserRequest {
+@ToString
+public class UserResponse {
     private Long userId;
     private String email;
     private String userName;
