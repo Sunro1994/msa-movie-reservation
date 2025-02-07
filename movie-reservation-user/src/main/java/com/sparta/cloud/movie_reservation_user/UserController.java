@@ -1,5 +1,6 @@
 package com.sparta.cloud.movie_reservation_user;
 
+import com.sparta.cloud.movie_reservation_user.core.UserResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -16,7 +17,7 @@ public class UserController {
     @PostMapping("/signUp")
     public ResponseEntity<Void> signUp(
             @RequestBody UserSignUpRequest userSignUpRequest
-    ){
+    ) {
         userService.signUp(userSignUpRequest);
 
         return ResponseEntity.ok().build();
@@ -38,7 +39,7 @@ public class UserController {
     @PutMapping("/logout")
     public ResponseEntity<Void> logout(
             @RequestHeader("X-User-Id") String userId
-    ){
+    ) {
         userService.logout(Long.valueOf(userId));
 
         return ResponseEntity.ok().build();
@@ -47,10 +48,27 @@ public class UserController {
     @PatchMapping
     public ResponseEntity<Void> update(
             @RequestHeader("X-User-Id") String userId,
-            @RequestBody String phoneNumber
-    ){
+            @RequestParam String phoneNumber
+    ) {
         userService.update(userId, phoneNumber);
 
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/my")
+    public ResponseEntity<UserResponse> getUser(
+            @RequestHeader("X-User-Id") String userId
+    ) {
+        UserResponse myAccount = userService.getMyAccount(userId);
+
+        return ResponseEntity.ok().body(myAccount);
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Void> delete(
+            @RequestHeader("X-User-Id") String userId
+    ){
+        userService.deleteMyAccount(userId);
         return ResponseEntity.ok().build();
     }
 

@@ -25,21 +25,31 @@ public class UserService {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         TokenResponse token;
 
-        User user = userRepository.findByEmail(userSignInRequest.getEmail()).orElseThrow(
-                () -> new IllegalArgumentException("아이디 또는 비밀번호를 다시 확인해주세요")
-        );
+        User user = getUserByEmail(userSignInRequest);
 
+        token = validateUserPasswordAndGetToken(userSignInRequest, passwordEncoder, user);
+
+        user.updateRefreshToken(token.getRefreshToken());
+
+        return token;
+
+    }
+
+    private TokenResponse validateUserPasswordAndGetToken(UserSignInRequest userSignInRequest, PasswordEncoder passwordEncoder, User user) {
+        TokenResponse token;
         if (passwordEncoder.matches(userSignInRequest.getPassword(), user.getPassword())) {
             UserResponse response = User.toResponse(user);
             token = authClient.getToken(response);
         } else {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
-
-        user.updateRefreshToken(token.getRefreshToken());
-
         return token;
+    }
 
+    private User getUserByEmail(UserSignInRequest userSignInRequest) {
+        return userRepository.findByEmail(userSignInRequest.getEmail()).orElseThrow(
+                () -> new IllegalArgumentException("아이디 또는 비밀번호를 다시 확인해주세요")
+        );
     }
 
     @Transactional
@@ -59,5 +69,16 @@ public class UserService {
     public void update(String userId, String phoneNumber) {
         User user = getUser(Long.valueOf(userId));
         user.updatePhoneNumber(phoneNumber);
+    }
+
+    public UserResponse getMyAccount(String userId) {
+        User user = getUser(Long.valueOf(userId));
+        return User.toResponse(user);
+    }
+
+    @Transactional
+    public void deleteMyAccount(String userId) {
+        User user = getUser(Long.valueOf(userId));
+        user.withDrawUser();
     }
 }
